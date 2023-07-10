@@ -14,7 +14,8 @@ interface IProps {
  * Perspective library adds load to HTMLElement prototype.
  * This interface acts as a wrapper for Typescript compiler.
  */
-interface PerspectiveViewerElement {
+//added PerspectiveViewerElement extends HTMLElement so it behaves like a html element
+interface PerspectiveViewerElement extends HTMLElement{
   load: (table: Table) => void,
 }
 
@@ -32,7 +33,19 @@ class Graph extends Component<IProps, {}> {
 
   componentDidMount() {
     // Get element to attach the table from the DOM.
-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+
+    //added attributes view,column-pivots,row-pivots,columns and aggregates. essential for the line graph to display necessary data in required format
+    elem.setAttribute('view','y_line');//using a view instead of graph,y_line for a line graph with data on y axis
+    elem.setAttribute('column-pivots','["stock"]');//distinguish between 2 stocks on y axis
+    elem.setAttribute('row-pivots','["timestamp"]');//map each datapoint on x-axis
+    elem.setAttribute('columns','["top_ask_price"]');//the attribute we want to focus on i.e.top_ask_price
+    elem.setAttribute('aggregates',`
+      {"stock":"distinct count",
+      "top_ask_price":"avg",
+      "top_bid_price":"avg",
+      "timestamp":"distinct count"}
+    `); //this attribute will aggregate the duplicate data based on stock(name of stock) and its timestamp.
 
     const schema = {
       stock: 'string',
